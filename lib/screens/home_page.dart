@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:quds_db/quds_db.dart';
 import 'package:quds_db_example/data/contact.dart';
+import 'package:quds_db_example/data/contacts_provider.dart';
 import 'package:quds_db_example/screens/add_edit_contact.dart';
 import 'package:quds_db_example/widgets/contact_list_tile.dart';
 
@@ -14,6 +16,20 @@ class _State extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    provider.addEntryChangeListner((changeType, entry) {
+      setState(() {
+        switch (changeType) {
+          case EntryChangeType.Insertion:
+            contacts.add(entry);
+            break;
+          case EntryChangeType.Deletion:
+            contacts.remove(entry);
+            break;
+          case EntryChangeType.Modification:
+            break;
+        }
+      });
+    });
     _fillResults();
   }
 
@@ -110,13 +126,16 @@ class _State extends State<HomePage> {
     //And if favourite is checked then fill with just favourite
     //And if just children box is checked then fill with just contacts
     //with age <18
-    contacts.add(Contact()
-      ..firstName = 'Mohammed'
-      ..familyName = 'Asaad'
-      ..birthDate = DateTime(1990, 10, 10)
-      ..color = Colors.red[500]!
-      ..isFavourite = true
-      ..mobileNumber = '+972597270180');
+
+    String str = searchController.text;
+    contacts.addAll(await provider.select(
+        orderBy: (c) => [c.firstName.ascOrder],
+        where: (c) {
+          var result = c.firstName.contains(str) | c.familyName.contains(str);
+          if (justFavourite) result &= c.isFavourite.isTrue;
+          if (justChildren) result &= c.birthDate.age < 18;
+          return result;
+        }));
 
     setState(() {});
   }

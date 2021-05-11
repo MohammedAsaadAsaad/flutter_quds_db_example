@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quds_db_example/data/contact.dart';
+import 'package:quds_db_example/data/contacts_provider.dart';
 import 'package:quds_db_example/screens/add_edit_contact.dart';
 import 'package:quds_db_example/utils/datetime_utils.dart';
 
@@ -30,12 +31,13 @@ class ContactListTile extends StatelessWidget {
         ],
       ),
       leading: Icon(
-        c.isFavourite ? Icons.favorite : Icons.favorite_border,
-        color: c.color,
+        c.isFavourite.value! ? Icons.favorite : Icons.favorite_border,
+        color: c.color.value,
       ),
       title: Text('${c.firstName} ${c.familyName}'),
-      subtitle:
-          Text(c.mobileNumber + '  -  ' + c.birthDate.toFormattedString()),
+      subtitle: Text(c.mobileNumber.value! +
+          '  -  ' +
+          c.birthDate.value!.toFormattedString()),
     );
   }
 
@@ -67,7 +69,7 @@ class ContactListTile extends StatelessWidget {
             ));
 
     if (result == 'yes') {
-      //Delete the contact
+      provider.deleteEntry(contact);
     }
   }
 }

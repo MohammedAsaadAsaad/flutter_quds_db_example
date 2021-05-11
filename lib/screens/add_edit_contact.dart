@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quds_db_example/data/contact.dart';
+import 'package:quds_db_example/data/contacts_provider.dart';
 import 'package:quds_db_example/utils/datetime_utils.dart';
 
 class AddEditContactDialog extends StatefulWidget {
@@ -14,11 +15,11 @@ class _State extends State<AddEditContactDialog> {
   void _loadData() {
     if (widget.contact != null) {
       var c = widget.contact!;
-      firstNameController.text = c.firstName;
-      familyNameController.text = c.familyName;
-      mobileNumberController.text = c.mobileNumber;
-      isFavourite = c.isFavourite;
-      color = c.color;
+      firstNameController.text = c.firstName.value!;
+      familyNameController.text = c.familyName.value!;
+      mobileNumberController.text = c.mobileNumber.value!;
+      isFavourite = c.isFavourite.value!;
+      color = c.color.value!;
     }
   }
 
@@ -154,7 +155,7 @@ class _State extends State<AddEditContactDialog> {
     );
   }
 
-  void _save() {
+  void _save() async {
     if (!keyForm.currentState!.validate()) return;
 
     //Save the contact
@@ -163,6 +164,17 @@ class _State extends State<AddEditContactDialog> {
     //otherwise it old contact with update operation
 
     Contact c = widget.contact ?? Contact();
+    c.firstName.value = firstNameController.text;
+    c.familyName.value = familyNameController.text;
+    c.mobileNumber.value = mobileNumberController.text;
+    c.birthDate.value = birthDate;
+    c.color.value = color;
+    c.isFavourite.value = isFavourite;
+    if (widget.contact == null)
+      await provider.insertEntry(c);
+    else
+      provider.updateEntry(c);
+
     //Save c;
     Navigator.pop(context);
   }
